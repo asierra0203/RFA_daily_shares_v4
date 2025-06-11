@@ -8,7 +8,7 @@ import pickle
 # Load your trained CatBoost model
 @st.cache_resource
 def load_model():
-    with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\app_model.pkl", "rb") as f:
+    with open("app_model.pkl", "rb") as f:
         model = pickle.load(f)
     return model
 
@@ -25,7 +25,7 @@ st.markdown(
 st.subheader("Upload Sailings Excel File (One Row Per Sailing, Comma-Separated Port Codes)")
 
 # Provide downloadable template for user reference
-with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\RFA_App_Template.xlsx", "rb") as template_file:
+with open("RFA_App_Template.xlsx", "rb") as template_file:
     st.download_button(
         label="Download Excel Template",
         data=template_file.read(),
