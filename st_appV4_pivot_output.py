@@ -1,13 +1,17 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
 
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Load your trained CatBoost model
 @st.cache_resource
 def load_model():
-    with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\app_model.pkl", "rb") as f:
+    model_path = os.path.join(SCRIPT_DIR, "app_model.pkl")
+    with open(model_path, "rb") as f:
         model = pickle.load(f)
     return model
 
@@ -24,7 +28,8 @@ st.markdown(
 st.subheader("Upload Sailings Excel File (One Row Per Sailing, Comma-Separated Port Codes)")
 
 # Provide downloadable template for user reference
-with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\RFA_App_Template.xlsx", "rb") as template_file:
+template_path = os.path.join(SCRIPT_DIR, "RFA_App_Template.xlsx")
+with open(template_path, "rb") as template_file:
     st.download_button(
         label="Download Excel Template",
         data=template_file.read(),
