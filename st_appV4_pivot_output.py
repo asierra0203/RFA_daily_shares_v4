@@ -114,6 +114,9 @@ if excel_file is not None:
         hide_index=True
     )
 
+    # Get the order of SAILING_IDs as they appear in the input file
+    sailing_id_order = sailing_df.apply(lambda row: f"{row['CASINO_CODE']}_{pd.to_datetime(row['DEPARTURE_DATE']).date()}", axis=1).tolist()
+
     # Pivot the output so each row is a sailing, columns are days 1-25
     pivoted = output_df.pivot(index='SAILING_ID', columns='DAY_NUMBER', values='Predicted Revenue Share (%)')
     # Rename columns to DAY_1, DAY_2, ..., DAY_25
@@ -126,6 +129,8 @@ if excel_file is not None:
         pivoted[col] = pivoted[col].apply(lambda x: f"{x:.2f}%" if pd.notnull(x) else "")
     # Add a Total column at the end (sum across all days, ignoring NaN, integer %)
     pivoted['Total'] = pivoted[all_days].replace('%','',regex=True).apply(pd.to_numeric, errors='coerce').sum(axis=1).round().astype(int).astype(str) + '%'
+    # Reindex to match the order of the input file
+    pivoted = pivoted.reindex(sailing_id_order)
     pivoted = pivoted.reset_index()
 
     # Export to Excel with user-specified filename (new format only)
