@@ -1,4 +1,3 @@
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -8,7 +7,7 @@ import pickle
 # Load your trained CatBoost model
 @st.cache_resource
 def load_model():
-    with open("app_model.pkl", "rb") as f:
+    with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\app_model.pkl", "rb") as f:
         model = pickle.load(f)
     return model
 
@@ -25,7 +24,7 @@ st.markdown(
 st.subheader("Upload Sailings Excel File (One Row Per Sailing, Comma-Separated Port Codes)")
 
 # Provide downloadable template for user reference
-with open("RFA_App_Template.xlsx", "rb") as template_file:
+with open(r"C:\Users\k3qz4\OneDrive - Royal Caribbean Group\Desktop\daily_pcts_app\RFA_App_Template.xlsx", "rb") as template_file:
     st.download_button(
         label="Download Excel Template",
         data=template_file.read(),
@@ -110,7 +109,21 @@ if excel_file is not None:
         hide_index=True
     )
 
-    # Export to Excel with user-specified filename
+    # Pivot the output so each row is a sailing, columns are days 1-25
+    pivoted = output_df.pivot(index='SAILING_ID', columns='DAY_NUMBER', values='Predicted Revenue Share (%)')
+    # Rename columns to DAY_1, DAY_2, ..., DAY_25
+    pivoted.columns = [f'DAY_{int(col)}' for col in pivoted.columns]
+    # Ensure columns for all 25 days
+    all_days = [f'DAY_{i}' for i in range(1, 26)]
+    pivoted = pivoted.reindex(columns=all_days)
+    # Format day columns as percentages with 2 decimals
+    for col in all_days:
+        pivoted[col] = pivoted[col].apply(lambda x: f"{x:.2f}%" if pd.notnull(x) else "")
+    # Add a Total column at the end (sum across all days, ignoring NaN, integer %)
+    pivoted['Total'] = pivoted[all_days].replace('%','',regex=True).apply(pd.to_numeric, errors='coerce').sum(axis=1).round().astype(int).astype(str) + '%'
+    pivoted = pivoted.reset_index()
+
+    # Export to Excel with user-specified filename (new format only)
     excel_filename = st.text_input(
         "Enter Excel file name (without .xlsx)",
         value="predicted_revenue_share"
@@ -118,7 +131,16 @@ if excel_file is not None:
     import io
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
-        output_df.to_excel(writer, index=False, sheet_name='Predictions')
+        pivoted.to_excel(writer, index=False, sheet_name='Predictions')
+        # Autofit columns (Alt H O I equivalent)
+        worksheet = writer.sheets['Predictions']
+        for i, col in enumerate(pivoted.columns):
+            # Find the max length in the column (including header)
+            max_len = max(
+                pivoted[col].astype(str).map(len).max(),
+                len(str(col))
+            )
+            worksheet.set_column(i, i, max_len + 2)  # add a little extra space
     processed_data = output.getvalue()
     st.download_button(
         label="Download results as Excel",
@@ -127,4 +149,3 @@ if excel_file is not None:
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
 
- 
