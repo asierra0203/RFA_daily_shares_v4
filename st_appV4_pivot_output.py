@@ -139,8 +139,15 @@ if excel_file is not None:
     cols = ['ship_code', 'departure_date'] + [col for col in pivoted.columns if col not in ['ship_code', 'departure_date', 'SAILING_ID']]
     pivoted = pivoted[cols]
 
-    # --- All caps column headers ---
-    pivoted.columns = [col.upper() for col in pivoted.columns]
+    # --- Set output column headers to all caps by assigning new column names directly ---
+    pivoted.columns = [
+        'SHIP_CODE',
+        'DEPARTURE_DATE',
+        'DAY_1', 'DAY_2', 'DAY_3', 'DAY_4', 'DAY_5', 'DAY_6', 'DAY_7', 'DAY_8', 'DAY_9', 'DAY_10',
+        'DAY_11', 'DAY_12', 'DAY_13', 'DAY_14', 'DAY_15', 'DAY_16', 'DAY_17', 'DAY_18', 'DAY_19', 'DAY_20',
+        'DAY_21', 'DAY_22', 'DAY_23', 'DAY_24', 'DAY_25',
+        'TOTAL'
+    ]
     # --- End of new code ---
 
     # Export to Excel with user-specified filename (new format only)
