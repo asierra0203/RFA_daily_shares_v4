@@ -128,15 +128,15 @@ if excel_file is not None:
     for col in all_days:
         pivoted[col] = pivoted[col].apply(lambda x: f"{x:.2f}%" if pd.notnull(x) else "")
     # Add a Total column at the end (sum across all days, ignoring NaN, integer %)
-    pivoted['Total'] = pivoted[all_days].replace('%','',regex=True).apply(pd.to_numeric, errors='coerce').sum(axis=1).round().astype(int).astype(str) + '%'
+    pivoted['TOTAL'] = pivoted[all_days].replace('%','',regex=True).apply(pd.to_numeric, errors='coerce').sum(axis=1).round().astype(int).astype(str) + '%'
     # Reindex to match the order of the input file
     pivoted = pivoted.reindex(sailing_id_order)
     pivoted = pivoted.reset_index()
 
-    # --- Add ship_code and departure_date columns for easier filtering ---
-    pivoted[['ship_code', 'departure_date']] = pivoted['SAILING_ID'].str.split('_', n=1, expand=True)
+    # --- Add SHIP_CODE and DEPARTURE_DATE columns for easier filtering ---
+    pivoted[['SHIP_CODE', 'DEPARTURE_DATE']] = pivoted['SAILING_ID'].str.split('_', n=1, expand=True)
     # Move the new columns to the front and drop SAILING_ID
-    cols = ['ship_code', 'departure_date'] + [col for col in pivoted.columns if col not in ['ship_code', 'departure_date', 'SAILING_ID']]
+    cols = ['SHIP_CODE', 'DEPARTURE_DATE'] + [col for col in pivoted.columns if col not in ['SHIP_CODE', 'DEPARTURE_DATE', 'SAILING_ID']]
     pivoted = pivoted[cols]
 
     # --- Set output column headers to all caps by assigning new column names directly ---
