@@ -28,6 +28,7 @@ st.markdown(
 st.subheader("Upload Sailings Excel File (One Row Per Sailing, Comma-Separated Port Codes)")
 
 # Provide downloadable template for user reference
+st.markdown("**Download Templates and Example Data Extract Query:**")
 template_path = os.path.join(SCRIPT_DIR, "RFA_App_Template.xlsx")
 with open(template_path, "rb") as template_file:
     st.download_button(
@@ -36,6 +37,18 @@ with open(template_path, "rb") as template_file:
         file_name="RFA_App_Template.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+# --- Add download button for SQL query file ---
+sql_query_path = os.path.join(SCRIPT_DIR, "RFA_model_query.sql")
+try:
+    with open(sql_query_path, "rb") as sql_file:
+        st.download_button(
+            label="Download Example SQL Query",
+            data=sql_file.read(),
+            file_name="RFA_model_query.sql",
+            mime="text/sql"
+        )
+except FileNotFoundError:
+    st.info("SQL query file (RFA_model_query.sql) not found. Please upload it to the app directory.")
 
 excel_file = st.file_uploader("Upload an Excel file with all required columns", type=["xlsx"])
 
