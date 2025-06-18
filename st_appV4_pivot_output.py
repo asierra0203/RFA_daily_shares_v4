@@ -135,9 +135,12 @@ if excel_file is not None:
 
     # --- Add ship_code and departure_date columns for easier filtering ---
     pivoted[['ship_code', 'departure_date']] = pivoted['SAILING_ID'].str.split('_', n=1, expand=True)
-    # Move the new columns to the front
+    # Move the new columns to the front and drop SAILING_ID
     cols = ['ship_code', 'departure_date'] + [col for col in pivoted.columns if col not in ['ship_code', 'departure_date', 'SAILING_ID']]
     pivoted = pivoted[cols]
+
+    # --- All caps column headers ---
+    pivoted.columns = [col.upper() for col in pivoted.columns]
     # --- End of new code ---
 
     # Export to Excel with user-specified filename (new format only)
