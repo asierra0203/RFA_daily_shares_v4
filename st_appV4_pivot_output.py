@@ -133,6 +133,13 @@ if excel_file is not None:
     pivoted = pivoted.reindex(sailing_id_order)
     pivoted = pivoted.reset_index()
 
+    # --- Add ship_code and departure_date columns for easier filtering ---
+    pivoted[['ship_code', 'departure_date']] = pivoted['SAILING_ID'].str.split('_', n=1, expand=True)
+    # Move the new columns to the front
+    cols = ['ship_code', 'departure_date'] + [col for col in pivoted.columns if col not in ['ship_code', 'departure_date']]
+    pivoted = pivoted[cols]
+    # --- End of new code ---
+
     # Export to Excel with user-specified filename (new format only)
     excel_filename = st.text_input(
         "Enter Excel file name (without .xlsx)",
@@ -158,4 +165,3 @@ if excel_file is not None:
         file_name=f"{excel_filename}.xlsx",
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
-
